@@ -91,7 +91,6 @@ int main() {
 
       if (lt * rb * rt * lb != 0) {
         if (lt != rb && rt != lb) {
-          printf("%c %c\n A \n%c %c\n\n", lt, rb, rt, lb);
           resStar2 += 1;
         }
       }
