@@ -48,7 +48,41 @@ char* copy(char* line, long size) {
     return copy;
 }
 
-void markantinode(char *map, char *result, int max, char freq) {
+void markstar2(char *map, char *result, int max, char freq) {
+  point *met = malloc(max * max * sizeof(point));
+  int metcount = 0;
+  for (int i = 0; i < max * max; i += 1) {
+    int x = i % (max);
+    int y = i / (max);
+    point cur = {.x=x, .y=y};
+    if (map[indexbypoint(cur, max)] != freq) {
+      continue;
+    } 
+    int ci = 0;
+    while (ci < metcount) {
+      point antinode1 = shift(met[ci], direction(cur, met[ci]));
+      while(ispointin(antinode1, max)) {
+        result[indexbypoint(antinode1, max)] = '#';
+        antinode1 = shift(antinode1, direction(cur, met[ci]));
+      }
+
+     point antinode2 = shift(cur, direction(met[ci], cur));
+
+      while(ispointin(antinode2, max)) {
+        result[indexbypoint(antinode2, max)] = '#';
+        antinode2 = shift(antinode2, direction(met[ci], cur));
+      }
+
+      ci += 1;
+    }
+    met[metcount] = cur;
+    metcount += 1;
+  }
+
+  free(met);
+}
+
+void markstar1(char *map, char *result, int max, char freq) {
   point *met = malloc(max * max * sizeof(point));
   int metcount = 0;
   for (int i = 0; i < max * max; i += 1) {
@@ -80,7 +114,7 @@ void markantinode(char *map, char *result, int max, char freq) {
   free(met);
 }
 
-void star1(char *content, long contentsize ){
+void mark(char *content, long contentsize ){
   char *antenafreqs = malloc((26*26+10) * sizeof(char));
   char *result = malloc(contentsize + 1);
   long i = 0;
@@ -106,11 +140,10 @@ void star1(char *content, long contentsize ){
 
   int curantena = 0;
   while (curantena < antenafreqscount) {
-    printf("marking %c \n", antenafreqs[curantena]);
-    markantinode(content, result,  max, antenafreqs[curantena]);
+    markstar2(content, result,  max, antenafreqs[curantena]);
+    //markstar1(content, result,  max, antenafreqs[curantena]);
     curantena += 1;
   }
-
   printf("%s", result);
 
   int u = 0;
@@ -121,9 +154,6 @@ void star1(char *content, long contentsize ){
   }
   printf("%d\n", antinodecount);
 
-  // create result string
-  // for each antenafreqs
-  //    
   free(antenafreqs);
   free(result);
 }
@@ -139,8 +169,6 @@ int main () {
   fread(content, 1, fileSize, file);
   fclose(file);
 
-  char *star1content = copy(content, fileSize);
-  star1(star1content, fileSize);
-  free(star1content);
+  mark(content, fileSize);
   free(content);
 }
